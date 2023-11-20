@@ -77,7 +77,6 @@ class QuoteBot(Bot):
             self.send_text_with_quote(msg['chat']['id'], msg["text"], quoted_msg_id=msg["message_id"])
 
 
-
 class ObjectDetectionBot(Bot):
     def handle_message(self, msg):
         logger.info(f'Incoming message: {msg}')
@@ -85,20 +84,21 @@ class ObjectDetectionBot(Bot):
         if self.is_current_msg_photo(msg):
             #pass
             # TODO download the user photo (utilize download_user_photo)
-            photo_path = self.download_user_photo(msg)
+            photo_path = self.download_user_photo(msg) #download from download_user_photo method
 
             # TODO upload the photo to S3
             s3_client = boto3.client('s3')
             s3_client.upload_file(photo_path, 'nancy-bucket-1', 'picture_from_bot.jpg')
 
             # TODO send a request to the `yolo5` service for prediction
+            # curl request and put the result in dict
             url = 'http://yolo5:8081/predict'
             params = {'imgName': 'picture_from_bot.jpg'}
             response = requests.post(url, params=params)
             data_dict = json.loads(response.text)
             class_counts = {}
 
-            # Loop through the "labels" and count objects for each class
+            # loop to count objects and put it in a string
             for label in data_dict["labels"]:
                 class_name = label["class"]
                 if class_name in class_counts:
@@ -106,12 +106,12 @@ class ObjectDetectionBot(Bot):
                 else:
                     class_counts[class_name] = 1
 
-            class_counts_str = "\n".join([f"{key}: {value}" for key, value in class_counts.items()])
+            class_counts_str = "\n".join([f"{key}: {value}" for key, value in class_counts.items()]) # putting in string
 
             # TODO send results to the Telegram end-user
  
             self.send_text(chat_id=msg['chat']['id'], text=class_counts_str)
-            translator = Translator()
+            translator = Translator() # google translate API (translate the result to arb and heb)
             translated_to_arabic = translator.translate(class_counts_str, dest='ar').text
             translated_to_hebrew = translator.translate(class_counts_str, dest='he').text
             self.send_text(chat_id=msg['chat']['id'], text=translated_to_hebrew)

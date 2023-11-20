@@ -7,7 +7,6 @@ import uuid
 import yaml
 from loguru import logger
 import os
-from bson import ObjectId
 import pymongo
 
 images_bucket = os.environ['BUCKET_NAME']
@@ -89,7 +88,6 @@ def predict():
         db = client["mongodb"]
         collection = db["prediction"]
 
-        logger.info(f'===================== {prediction_summary}=========================')
         inserted_id = collection.insert_one(prediction_summary).inserted_id
 
         # Now convert the ObjectId to str for JSON serialization

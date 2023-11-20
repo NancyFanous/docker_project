@@ -6,9 +6,9 @@ from bot import ObjectDetectionBot
 
 app = flask.Flask(__name__)
 
-with open("/run/secrets/telegram_token", "r") as f:
+with open("/run/secrets/telegram_token", "r") as f:  #get token from file in the container
     TELEGRAM_TOKEN = f.read().strip()
-    print(TELEGRAM_TOKEN)
+
 
 TELEGRAM_APP_URL = os.environ['TELEGRAM_APP_URL']
 
